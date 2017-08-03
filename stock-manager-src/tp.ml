@@ -269,6 +269,65 @@ match Session.branch cc with
 
 (* Main *)
 
+let input_client () =
+    let () = print_string "Type a client name: " in
+    let name = read_line () in 
+    let () = print_string "Type a credit card number: " in
+    let card_number = read_int () in
+    {name=name; card_number=card_number};;
+
+let rec input_catalog catalog =
+    let () = print_string "Want to add a product? (YES/NO) " in
+    let decision = read_line () in 
+    if decision <> "YES" && decision <> "NO" then
+        let () = print_string "Command not understood\n" in
+        input_catalog catalog
+    else
+        if decision = "NO" then
+            catalog
+        else
+            let () = print_string "Product name: " in
+            let name = read_line () in 
+            let () = print_string "Product quantity: " in
+            let quantity = read_int () in 
+            let () = print_string "Product price: " in
+            let price = read_float () in 
+            let new_item = {code=name; quantity=quantity; price=price} in
+            let new_catalog = CatalogItem(new_item, catalog) in
+            input_catalog new_catalog;;
+
+let rec make_purchases client_channel client cart =
+    let () = (print_string "Cart: "; print_cart cart; print_string "\n") in
+    let () = (print_string "Total price: "; print_float (total_price cart); print_string "\n") in
+    let () = print_string "Want to purchase anything more? (YES/NO) " in
+    let decision = read_line () in 
+    if decision <> "YES" && decision <> "NO" then
+        let () = print_string "Command not understood\n" in
+        make_purchases client_channel client cart
+    else
+        if decision = "NO" then
+            let () = print_string "Bought: " in
+            let () = (print_cart cart; print_string "\n") in
+            let () = print_string "Total price: " in
+            let () = (print_float (total_price cart); print_string "\n") in 
+            let _ = client_purchase client_channel client cart in
+            ()
+        else
+            let () = print_string "Product name: " in
+            let name = read_line () in 
+            let () = print_string "Product quantity: " in
+            let quantity = read_int () in
+            let (client_channel, cart) = client_add client_channel name quantity cart in
+            make_purchases client_channel client cart;;
+
+let main =
+    let client = input_client () in
+    let catalog = input_catalog EmptyCatalog in
+    let server_channel, client_channel = Session.create () in
+    let _ = Thread.create (server_cart server_channel) catalog in
+    make_purchases client_channel client EmptyCart;;
+
+(* 
 let _ =
 let catalog = list_to_catalog [{code="A1";quantity=6; price = 10.0}; {code="A2";quantity=0; price = 20.0};{code="A3";quantity=1; price = 30.0};{code="A4";quantity=5; price = 40.0}] in
 let a, b = Session.create () in
@@ -306,3 +365,4 @@ let (b, cart) = client_remove_n b "A1" 2 cart in
 let cart = client_purchase_v3 b {name="Juan Perez"; card_number=1} cart in
 print_cart cart; print_string "\n";
 print_float (total_price cart); print_string "\n";;
+ *)
