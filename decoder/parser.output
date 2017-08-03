@@ -1,0 +1,1397 @@
+   0  $accept : %entry% $end
+
+   1  main : specification_list
+
+   2  value_name : LID
+   3             | LPAREN OID RPAREN
+
+   4  specification_list :
+   5                     | specification specification_list
+
+   6  specification : type_expr
+   7                | VAL value_name COLON type_expr
+   8                | EXCEPTION constr_decl
+   9                | MODULE CID EQ module_path
+  10                | MODULE CID COLON SIG specification_list END
+  11                | TYPE type_definition_ne_list
+
+  12  type_definition_ne_list : type_definition
+  13                          | type_definition AND type_definition_ne_list
+
+  14  type_definition : type_expr type_information
+
+  15  type_information :
+  16                   | EQ type_expr
+  17                   | EQ constr_decl_ne_list
+  18                   | EQ record_decl
+
+  19  module_path : CID
+  20              | CID DOT module_path
+
+  21  constr_decl : CID constr_args_opt
+  22              | CID COLON type_expr
+
+  23  constr_args_opt :
+  24                  | OF type_expr
+
+  25  constr_decl_ne_list : constr_decl
+  26                      | constr_decl OR constr_decl_ne_list
+
+  27  record_decl : LBRACE field_decl_list RBRACE
+
+  28  field_decl_list :
+  29                  | field_decl SEMICOLON field_decl_list
+
+  30  field_decl : mutable_opt LID COLON type_expr
+
+  31  mutable_opt :
+  32              | MUTABLE
+
+  33  type_var : TICK LID
+
+  34  type_expr : as_type_expr
+
+  35  as_type_expr : arrow_type_expr
+  36               | as_type_expr AS type_var
+
+  37  arrow_type_expr : tuple_type_expr
+  38                  | tuple_type_expr ARROW arrow_type_expr
+
+  39  tuple_type_expr : atomic_type_expr
+  40                  | atomic_type_expr STAR tuple_type_expr
+
+  41  atomic_type_expr : type_var
+  42                   | QMARK LID COLON atomic_type_expr
+  43                   | LPAREN type_expr RPAREN
+  44                   | type_constr
+  45                   | atomic_type_expr type_constr
+  46                   | LPAREN type_expr_comma_ne_list RPAREN type_constr
+  47                   | polymorphic_variant_type
+
+  48  type_expr_comma_ne_list : type_expr comma_type_expr_list
+
+  49  comma_type_expr_list :
+  50                       | COMMA type_expr_comma_ne_list
+
+  51  type_constr : LID
+  52              | CID DOT type_constr
+
+  53  polymorphic_variant_type : LBRACK GT tag_spec_list RBRACK
+  54                           | LBRACK LT tag_spec_list RBRACK
+  55                           | LBRACK LT tag_spec_list GT tag_ne_list RBRACK
+  56                           | LBRACK tag_spec_list RBRACK
+
+  57  tag_spec_list :
+  58                | tag_spec_ne_list
+
+  59  tag_spec_ne_list : tag_spec
+  60                   | tag_spec OR tag_spec_ne_list
+
+  61  tag_spec : BACKTICK CID OF type_expr
+
+  62  tag_ne_list : BACKTICK CID
+  63              | BACKTICK CID tag_ne_list
+
+  64  %entry% : '\001' main
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . main  (64)
+	specification_list : .  (4)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	EXCEPTION  shift 9
+	MODULE  shift 10
+	TYPE  shift 11
+	VAL  shift 12
+	$end  reduce 4
+
+	main  goto 13
+	specification_list  goto 14
+	specification  goto 15
+	type_expr  goto 16
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	type_constr : LID .  (51)
+
+	.  reduce 51
+
+
+state 4
+	type_constr : CID . DOT type_constr  (52)
+
+	DOT  shift 24
+	.  error
+
+
+state 5
+	atomic_type_expr : LPAREN . type_expr RPAREN  (43)
+	atomic_type_expr : LPAREN . type_expr_comma_ne_list RPAREN type_constr  (46)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 25
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	type_expr_comma_ne_list  goto 26
+	polymorphic_variant_type  goto 23
+
+
+state 6
+	polymorphic_variant_type : LBRACK . GT tag_spec_list RBRACK  (53)
+	polymorphic_variant_type : LBRACK . LT tag_spec_list RBRACK  (54)
+	polymorphic_variant_type : LBRACK . LT tag_spec_list GT tag_ne_list RBRACK  (55)
+	polymorphic_variant_type : LBRACK . tag_spec_list RBRACK  (56)
+	tag_spec_list : .  (57)
+
+	LT  shift 27
+	GT  shift 28
+	BACKTICK  shift 29
+	RBRACK  reduce 57
+
+	tag_spec_ne_list  goto 30
+	tag_spec_list  goto 31
+	tag_spec  goto 32
+
+
+state 7
+	type_var : TICK . LID  (33)
+
+	LID  shift 33
+	.  error
+
+
+state 8
+	atomic_type_expr : QMARK . LID COLON atomic_type_expr  (42)
+
+	LID  shift 34
+	.  error
+
+
+state 9
+	specification : EXCEPTION . constr_decl  (8)
+
+	CID  shift 35
+	.  error
+
+	constr_decl  goto 36
+
+
+state 10
+	specification : MODULE . CID EQ module_path  (9)
+	specification : MODULE . CID COLON SIG specification_list END  (10)
+
+	CID  shift 37
+	.  error
+
+
+state 11
+	specification : TYPE . type_definition_ne_list  (11)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 38
+	type_definition_ne_list  goto 39
+	type_definition  goto 40
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 12
+	specification : VAL . value_name COLON type_expr  (7)
+
+	LID  shift 41
+	LPAREN  shift 42
+	.  error
+
+	value_name  goto 43
+
+
+state 13
+	%entry% : '\001' main .  (64)
+
+	.  reduce 64
+
+
+state 14
+	main : specification_list .  (1)
+
+	.  reduce 1
+
+
+state 15
+	specification_list : specification . specification_list  (5)
+	specification_list : .  (4)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	EXCEPTION  shift 9
+	MODULE  shift 10
+	TYPE  shift 11
+	VAL  shift 12
+	$end  reduce 4
+	END  reduce 4
+
+	specification_list  goto 44
+	specification  goto 15
+	type_expr  goto 16
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 16
+	specification : type_expr .  (6)
+
+	.  reduce 6
+
+
+state 17
+	atomic_type_expr : type_var .  (41)
+
+	.  reduce 41
+
+
+state 18
+	type_expr : as_type_expr .  (34)
+	as_type_expr : as_type_expr . AS type_var  (36)
+
+	AS  shift 45
+	$end  reduce 34
+	LID  reduce 34
+	CID  reduce 34
+	LPAREN  reduce 34
+	RPAREN  reduce 34
+	LBRACK  reduce 34
+	RBRACK  reduce 34
+	TICK  reduce 34
+	QMARK  reduce 34
+	COMMA  reduce 34
+	AND  reduce 34
+	EXCEPTION  reduce 34
+	MODULE  reduce 34
+	TYPE  reduce 34
+	VAL  reduce 34
+	GT  reduce 34
+	EQ  reduce 34
+	SEMICOLON  reduce 34
+	OR  reduce 34
+	END  reduce 34
+
+
+state 19
+	as_type_expr : arrow_type_expr .  (35)
+
+	.  reduce 35
+
+
+state 20
+	arrow_type_expr : tuple_type_expr .  (37)
+	arrow_type_expr : tuple_type_expr . ARROW arrow_type_expr  (38)
+
+	ARROW  shift 46
+	$end  reduce 37
+	LID  reduce 37
+	CID  reduce 37
+	LPAREN  reduce 37
+	RPAREN  reduce 37
+	LBRACK  reduce 37
+	RBRACK  reduce 37
+	TICK  reduce 37
+	QMARK  reduce 37
+	COMMA  reduce 37
+	AS  reduce 37
+	AND  reduce 37
+	EXCEPTION  reduce 37
+	MODULE  reduce 37
+	TYPE  reduce 37
+	VAL  reduce 37
+	GT  reduce 37
+	EQ  reduce 37
+	SEMICOLON  reduce 37
+	OR  reduce 37
+	END  reduce 37
+
+
+21: shift/reduce conflict (shift 3, reduce 39) on LID
+21: shift/reduce conflict (shift 4, reduce 39) on CID
+state 21
+	tuple_type_expr : atomic_type_expr .  (39)
+	tuple_type_expr : atomic_type_expr . STAR tuple_type_expr  (40)
+	atomic_type_expr : atomic_type_expr . type_constr  (45)
+
+	LID  shift 3
+	CID  shift 4
+	STAR  shift 47
+	$end  reduce 39
+	LPAREN  reduce 39
+	RPAREN  reduce 39
+	LBRACK  reduce 39
+	RBRACK  reduce 39
+	TICK  reduce 39
+	QMARK  reduce 39
+	ARROW  reduce 39
+	COMMA  reduce 39
+	AS  reduce 39
+	AND  reduce 39
+	EXCEPTION  reduce 39
+	MODULE  reduce 39
+	TYPE  reduce 39
+	VAL  reduce 39
+	GT  reduce 39
+	EQ  reduce 39
+	SEMICOLON  reduce 39
+	OR  reduce 39
+	END  reduce 39
+
+	type_constr  goto 48
+
+
+state 22
+	atomic_type_expr : type_constr .  (44)
+
+	.  reduce 44
+
+
+state 23
+	atomic_type_expr : polymorphic_variant_type .  (47)
+
+	.  reduce 47
+
+
+state 24
+	type_constr : CID DOT . type_constr  (52)
+
+	LID  shift 3
+	CID  shift 4
+	.  error
+
+	type_constr  goto 49
+
+
+25: shift/reduce conflict (shift 50, reduce 49) on RPAREN
+state 25
+	atomic_type_expr : LPAREN type_expr . RPAREN  (43)
+	type_expr_comma_ne_list : type_expr . comma_type_expr_list  (48)
+	comma_type_expr_list : .  (49)
+
+	RPAREN  shift 50
+	COMMA  shift 51
+
+	comma_type_expr_list  goto 52
+
+
+state 26
+	atomic_type_expr : LPAREN type_expr_comma_ne_list . RPAREN type_constr  (46)
+
+	RPAREN  shift 53
+	.  error
+
+
+state 27
+	polymorphic_variant_type : LBRACK LT . tag_spec_list RBRACK  (54)
+	polymorphic_variant_type : LBRACK LT . tag_spec_list GT tag_ne_list RBRACK  (55)
+	tag_spec_list : .  (57)
+
+	BACKTICK  shift 29
+	RBRACK  reduce 57
+	GT  reduce 57
+
+	tag_spec_ne_list  goto 30
+	tag_spec_list  goto 54
+	tag_spec  goto 32
+
+
+state 28
+	polymorphic_variant_type : LBRACK GT . tag_spec_list RBRACK  (53)
+	tag_spec_list : .  (57)
+
+	BACKTICK  shift 29
+	RBRACK  reduce 57
+
+	tag_spec_ne_list  goto 30
+	tag_spec_list  goto 55
+	tag_spec  goto 32
+
+
+state 29
+	tag_spec : BACKTICK . CID OF type_expr  (61)
+
+	CID  shift 56
+	.  error
+
+
+state 30
+	tag_spec_list : tag_spec_ne_list .  (58)
+
+	.  reduce 58
+
+
+state 31
+	polymorphic_variant_type : LBRACK tag_spec_list . RBRACK  (56)
+
+	RBRACK  shift 57
+	.  error
+
+
+state 32
+	tag_spec_ne_list : tag_spec .  (59)
+	tag_spec_ne_list : tag_spec . OR tag_spec_ne_list  (60)
+
+	OR  shift 58
+	RBRACK  reduce 59
+	GT  reduce 59
+
+
+state 33
+	type_var : TICK LID .  (33)
+
+	.  reduce 33
+
+
+state 34
+	atomic_type_expr : QMARK LID . COLON atomic_type_expr  (42)
+
+	COLON  shift 59
+	.  error
+
+
+state 35
+	constr_decl : CID . constr_args_opt  (21)
+	constr_decl : CID . COLON type_expr  (22)
+	constr_args_opt : .  (23)
+
+	COLON  shift 60
+	OF  shift 61
+	$end  reduce 23
+	LID  reduce 23
+	CID  reduce 23
+	LPAREN  reduce 23
+	LBRACK  reduce 23
+	TICK  reduce 23
+	QMARK  reduce 23
+	AND  reduce 23
+	EXCEPTION  reduce 23
+	MODULE  reduce 23
+	TYPE  reduce 23
+	VAL  reduce 23
+	OR  reduce 23
+	END  reduce 23
+
+	constr_args_opt  goto 62
+
+
+state 36
+	specification : EXCEPTION constr_decl .  (8)
+
+	.  reduce 8
+
+
+state 37
+	specification : MODULE CID . EQ module_path  (9)
+	specification : MODULE CID . COLON SIG specification_list END  (10)
+
+	COLON  shift 63
+	EQ  shift 64
+	.  error
+
+
+state 38
+	type_definition : type_expr . type_information  (14)
+	type_information : .  (15)
+
+	EQ  shift 65
+	$end  reduce 15
+	LID  reduce 15
+	CID  reduce 15
+	LPAREN  reduce 15
+	LBRACK  reduce 15
+	TICK  reduce 15
+	QMARK  reduce 15
+	AND  reduce 15
+	EXCEPTION  reduce 15
+	MODULE  reduce 15
+	TYPE  reduce 15
+	VAL  reduce 15
+	END  reduce 15
+
+	type_information  goto 66
+
+
+state 39
+	specification : TYPE type_definition_ne_list .  (11)
+
+	.  reduce 11
+
+
+state 40
+	type_definition_ne_list : type_definition .  (12)
+	type_definition_ne_list : type_definition . AND type_definition_ne_list  (13)
+
+	AND  shift 67
+	$end  reduce 12
+	LID  reduce 12
+	CID  reduce 12
+	LPAREN  reduce 12
+	LBRACK  reduce 12
+	TICK  reduce 12
+	QMARK  reduce 12
+	EXCEPTION  reduce 12
+	MODULE  reduce 12
+	TYPE  reduce 12
+	VAL  reduce 12
+	END  reduce 12
+
+
+state 41
+	value_name : LID .  (2)
+
+	.  reduce 2
+
+
+state 42
+	value_name : LPAREN . OID RPAREN  (3)
+
+	OID  shift 68
+	.  error
+
+
+state 43
+	specification : VAL value_name . COLON type_expr  (7)
+
+	COLON  shift 69
+	.  error
+
+
+state 44
+	specification_list : specification specification_list .  (5)
+
+	.  reduce 5
+
+
+state 45
+	as_type_expr : as_type_expr AS . type_var  (36)
+
+	TICK  shift 7
+	.  error
+
+	type_var  goto 70
+
+
+state 46
+	arrow_type_expr : tuple_type_expr ARROW . arrow_type_expr  (38)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_var  goto 17
+	arrow_type_expr  goto 71
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 47
+	tuple_type_expr : atomic_type_expr STAR . tuple_type_expr  (40)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_var  goto 17
+	tuple_type_expr  goto 72
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 48
+	atomic_type_expr : atomic_type_expr type_constr .  (45)
+
+	.  reduce 45
+
+
+state 49
+	type_constr : CID DOT type_constr .  (52)
+
+	.  reduce 52
+
+
+state 50
+	atomic_type_expr : LPAREN type_expr RPAREN .  (43)
+
+	.  reduce 43
+
+
+state 51
+	comma_type_expr_list : COMMA . type_expr_comma_ne_list  (50)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 73
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	type_expr_comma_ne_list  goto 74
+	polymorphic_variant_type  goto 23
+
+
+state 52
+	type_expr_comma_ne_list : type_expr comma_type_expr_list .  (48)
+
+	.  reduce 48
+
+
+state 53
+	atomic_type_expr : LPAREN type_expr_comma_ne_list RPAREN . type_constr  (46)
+
+	LID  shift 3
+	CID  shift 4
+	.  error
+
+	type_constr  goto 75
+
+
+state 54
+	polymorphic_variant_type : LBRACK LT tag_spec_list . RBRACK  (54)
+	polymorphic_variant_type : LBRACK LT tag_spec_list . GT tag_ne_list RBRACK  (55)
+
+	RBRACK  shift 76
+	GT  shift 77
+	.  error
+
+
+state 55
+	polymorphic_variant_type : LBRACK GT tag_spec_list . RBRACK  (53)
+
+	RBRACK  shift 78
+	.  error
+
+
+state 56
+	tag_spec : BACKTICK CID . OF type_expr  (61)
+
+	OF  shift 79
+	.  error
+
+
+state 57
+	polymorphic_variant_type : LBRACK tag_spec_list RBRACK .  (56)
+
+	.  reduce 56
+
+
+state 58
+	tag_spec_ne_list : tag_spec OR . tag_spec_ne_list  (60)
+
+	BACKTICK  shift 29
+	.  error
+
+	tag_spec_ne_list  goto 80
+	tag_spec  goto 32
+
+
+state 59
+	atomic_type_expr : QMARK LID COLON . atomic_type_expr  (42)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_var  goto 17
+	atomic_type_expr  goto 81
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 60
+	constr_decl : CID COLON . type_expr  (22)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 82
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 61
+	constr_args_opt : OF . type_expr  (24)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 83
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 62
+	constr_decl : CID constr_args_opt .  (21)
+
+	.  reduce 21
+
+
+state 63
+	specification : MODULE CID COLON . SIG specification_list END  (10)
+
+	SIG  shift 84
+	.  error
+
+
+state 64
+	specification : MODULE CID EQ . module_path  (9)
+
+	CID  shift 85
+	.  error
+
+	module_path  goto 86
+
+
+state 65
+	type_information : EQ . type_expr  (16)
+	type_information : EQ . constr_decl_ne_list  (17)
+	type_information : EQ . record_decl  (18)
+
+	LID  shift 3
+	CID  shift 87
+	LPAREN  shift 5
+	LBRACK  shift 6
+	LBRACE  shift 88
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 89
+	constr_decl  goto 90
+	constr_decl_ne_list  goto 91
+	record_decl  goto 92
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 66
+	type_definition : type_expr type_information .  (14)
+
+	.  reduce 14
+
+
+state 67
+	type_definition_ne_list : type_definition AND . type_definition_ne_list  (13)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 38
+	type_definition_ne_list  goto 93
+	type_definition  goto 40
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 68
+	value_name : LPAREN OID . RPAREN  (3)
+
+	RPAREN  shift 94
+	.  error
+
+
+state 69
+	specification : VAL value_name COLON . type_expr  (7)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 95
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 70
+	as_type_expr : as_type_expr AS type_var .  (36)
+
+	.  reduce 36
+
+
+state 71
+	arrow_type_expr : tuple_type_expr ARROW arrow_type_expr .  (38)
+
+	.  reduce 38
+
+
+state 72
+	tuple_type_expr : atomic_type_expr STAR tuple_type_expr .  (40)
+
+	.  reduce 40
+
+
+state 73
+	type_expr_comma_ne_list : type_expr . comma_type_expr_list  (48)
+	comma_type_expr_list : .  (49)
+
+	COMMA  shift 51
+	RPAREN  reduce 49
+
+	comma_type_expr_list  goto 52
+
+
+state 74
+	comma_type_expr_list : COMMA type_expr_comma_ne_list .  (50)
+
+	.  reduce 50
+
+
+state 75
+	atomic_type_expr : LPAREN type_expr_comma_ne_list RPAREN type_constr .  (46)
+
+	.  reduce 46
+
+
+state 76
+	polymorphic_variant_type : LBRACK LT tag_spec_list RBRACK .  (54)
+
+	.  reduce 54
+
+
+state 77
+	polymorphic_variant_type : LBRACK LT tag_spec_list GT . tag_ne_list RBRACK  (55)
+
+	BACKTICK  shift 96
+	.  error
+
+	tag_ne_list  goto 97
+
+
+state 78
+	polymorphic_variant_type : LBRACK GT tag_spec_list RBRACK .  (53)
+
+	.  reduce 53
+
+
+state 79
+	tag_spec : BACKTICK CID OF . type_expr  (61)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 98
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 80
+	tag_spec_ne_list : tag_spec OR tag_spec_ne_list .  (60)
+
+	.  reduce 60
+
+
+81: shift/reduce conflict (shift 3, reduce 42) on LID
+81: shift/reduce conflict (shift 4, reduce 42) on CID
+state 81
+	atomic_type_expr : QMARK LID COLON atomic_type_expr .  (42)
+	atomic_type_expr : atomic_type_expr . type_constr  (45)
+
+	LID  shift 3
+	CID  shift 4
+	$end  reduce 42
+	LPAREN  reduce 42
+	RPAREN  reduce 42
+	LBRACK  reduce 42
+	RBRACK  reduce 42
+	TICK  reduce 42
+	QMARK  reduce 42
+	ARROW  reduce 42
+	STAR  reduce 42
+	COMMA  reduce 42
+	AS  reduce 42
+	AND  reduce 42
+	EXCEPTION  reduce 42
+	MODULE  reduce 42
+	TYPE  reduce 42
+	VAL  reduce 42
+	GT  reduce 42
+	EQ  reduce 42
+	SEMICOLON  reduce 42
+	OR  reduce 42
+	END  reduce 42
+
+	type_constr  goto 48
+
+
+state 82
+	constr_decl : CID COLON type_expr .  (22)
+
+	.  reduce 22
+
+
+state 83
+	constr_args_opt : OF type_expr .  (24)
+
+	.  reduce 24
+
+
+state 84
+	specification : MODULE CID COLON SIG . specification_list END  (10)
+	specification_list : .  (4)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	EXCEPTION  shift 9
+	MODULE  shift 10
+	TYPE  shift 11
+	VAL  shift 12
+	END  reduce 4
+
+	specification_list  goto 99
+	specification  goto 15
+	type_expr  goto 16
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 85
+	module_path : CID .  (19)
+	module_path : CID . DOT module_path  (20)
+
+	DOT  shift 100
+	$end  reduce 19
+	LID  reduce 19
+	CID  reduce 19
+	LPAREN  reduce 19
+	LBRACK  reduce 19
+	TICK  reduce 19
+	QMARK  reduce 19
+	EXCEPTION  reduce 19
+	MODULE  reduce 19
+	TYPE  reduce 19
+	VAL  reduce 19
+	END  reduce 19
+
+
+state 86
+	specification : MODULE CID EQ module_path .  (9)
+
+	.  reduce 9
+
+
+state 87
+	constr_decl : CID . constr_args_opt  (21)
+	constr_decl : CID . COLON type_expr  (22)
+	type_constr : CID . DOT type_constr  (52)
+	constr_args_opt : .  (23)
+
+	COLON  shift 60
+	OF  shift 61
+	DOT  shift 24
+	$end  reduce 23
+	LID  reduce 23
+	CID  reduce 23
+	LPAREN  reduce 23
+	LBRACK  reduce 23
+	TICK  reduce 23
+	QMARK  reduce 23
+	AND  reduce 23
+	EXCEPTION  reduce 23
+	MODULE  reduce 23
+	TYPE  reduce 23
+	VAL  reduce 23
+	OR  reduce 23
+	END  reduce 23
+
+	constr_args_opt  goto 62
+
+
+state 88
+	record_decl : LBRACE . field_decl_list RBRACE  (27)
+	field_decl_list : .  (28)
+	mutable_opt : .  (31)
+
+	MUTABLE  shift 101
+	LID  reduce 31
+	RBRACE  reduce 28
+
+	field_decl_list  goto 102
+	field_decl  goto 103
+	mutable_opt  goto 104
+
+
+state 89
+	type_information : EQ type_expr .  (16)
+
+	.  reduce 16
+
+
+state 90
+	constr_decl_ne_list : constr_decl .  (25)
+	constr_decl_ne_list : constr_decl . OR constr_decl_ne_list  (26)
+
+	OR  shift 105
+	$end  reduce 25
+	LID  reduce 25
+	CID  reduce 25
+	LPAREN  reduce 25
+	LBRACK  reduce 25
+	TICK  reduce 25
+	QMARK  reduce 25
+	AND  reduce 25
+	EXCEPTION  reduce 25
+	MODULE  reduce 25
+	TYPE  reduce 25
+	VAL  reduce 25
+	END  reduce 25
+
+
+state 91
+	type_information : EQ constr_decl_ne_list .  (17)
+
+	.  reduce 17
+
+
+state 92
+	type_information : EQ record_decl .  (18)
+
+	.  reduce 18
+
+
+state 93
+	type_definition_ne_list : type_definition AND type_definition_ne_list .  (13)
+
+	.  reduce 13
+
+
+state 94
+	value_name : LPAREN OID RPAREN .  (3)
+
+	.  reduce 3
+
+
+state 95
+	specification : VAL value_name COLON type_expr .  (7)
+
+	.  reduce 7
+
+
+state 96
+	tag_ne_list : BACKTICK . CID  (62)
+	tag_ne_list : BACKTICK . CID tag_ne_list  (63)
+
+	CID  shift 106
+	.  error
+
+
+state 97
+	polymorphic_variant_type : LBRACK LT tag_spec_list GT tag_ne_list . RBRACK  (55)
+
+	RBRACK  shift 107
+	.  error
+
+
+state 98
+	tag_spec : BACKTICK CID OF type_expr .  (61)
+
+	.  reduce 61
+
+
+state 99
+	specification : MODULE CID COLON SIG specification_list . END  (10)
+
+	END  shift 108
+	.  error
+
+
+state 100
+	module_path : CID DOT . module_path  (20)
+
+	CID  shift 85
+	.  error
+
+	module_path  goto 109
+
+
+state 101
+	mutable_opt : MUTABLE .  (32)
+
+	.  reduce 32
+
+
+state 102
+	record_decl : LBRACE field_decl_list . RBRACE  (27)
+
+	RBRACE  shift 110
+	.  error
+
+
+state 103
+	field_decl_list : field_decl . SEMICOLON field_decl_list  (29)
+
+	SEMICOLON  shift 111
+	.  error
+
+
+state 104
+	field_decl : mutable_opt . LID COLON type_expr  (30)
+
+	LID  shift 112
+	.  error
+
+
+state 105
+	constr_decl_ne_list : constr_decl OR . constr_decl_ne_list  (26)
+
+	CID  shift 35
+	.  error
+
+	constr_decl  goto 90
+	constr_decl_ne_list  goto 113
+
+
+state 106
+	tag_ne_list : BACKTICK CID .  (62)
+	tag_ne_list : BACKTICK CID . tag_ne_list  (63)
+
+	BACKTICK  shift 96
+	RBRACK  reduce 62
+
+	tag_ne_list  goto 114
+
+
+state 107
+	polymorphic_variant_type : LBRACK LT tag_spec_list GT tag_ne_list RBRACK .  (55)
+
+	.  reduce 55
+
+
+state 108
+	specification : MODULE CID COLON SIG specification_list END .  (10)
+
+	.  reduce 10
+
+
+state 109
+	module_path : CID DOT module_path .  (20)
+
+	.  reduce 20
+
+
+state 110
+	record_decl : LBRACE field_decl_list RBRACE .  (27)
+
+	.  reduce 27
+
+
+state 111
+	field_decl_list : field_decl SEMICOLON . field_decl_list  (29)
+	field_decl_list : .  (28)
+	mutable_opt : .  (31)
+
+	MUTABLE  shift 101
+	LID  reduce 31
+	RBRACE  reduce 28
+
+	field_decl_list  goto 115
+	field_decl  goto 103
+	mutable_opt  goto 104
+
+
+state 112
+	field_decl : mutable_opt LID . COLON type_expr  (30)
+
+	COLON  shift 116
+	.  error
+
+
+state 113
+	constr_decl_ne_list : constr_decl OR constr_decl_ne_list .  (26)
+
+	.  reduce 26
+
+
+state 114
+	tag_ne_list : BACKTICK CID tag_ne_list .  (63)
+
+	.  reduce 63
+
+
+state 115
+	field_decl_list : field_decl SEMICOLON field_decl_list .  (29)
+
+	.  reduce 29
+
+
+state 116
+	field_decl : mutable_opt LID COLON . type_expr  (30)
+
+	LID  shift 3
+	CID  shift 4
+	LPAREN  shift 5
+	LBRACK  shift 6
+	TICK  shift 7
+	QMARK  shift 8
+	.  error
+
+	type_expr  goto 117
+	type_var  goto 17
+	as_type_expr  goto 18
+	arrow_type_expr  goto 19
+	tuple_type_expr  goto 20
+	atomic_type_expr  goto 21
+	type_constr  goto 22
+	polymorphic_variant_type  goto 23
+
+
+state 117
+	field_decl : mutable_opt LID COLON type_expr .  (30)
+
+	.  reduce 30
+
+
+State 21 contains 2 shift/reduce conflicts.
+State 25 contains 1 shift/reduce conflict.
+State 81 contains 2 shift/reduce conflicts.
+
+
+39 terminals, 31 nonterminals
+65 grammar rules, 118 states
