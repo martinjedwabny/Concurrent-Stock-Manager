@@ -33,7 +33,7 @@ let return cart catalog = foldCart (fun item res -> cancel_reserve_n item.code i
 let list_to_catalog lista =
     List.fold_right (fun x res -> CatalogItem(x, res)) lista EmptyCatalog;;
 
-(* Funciones cart *)
+(* Cart functions *)
 
 let string_cart = function
         | EmptyCart -> "Empty Cart"
